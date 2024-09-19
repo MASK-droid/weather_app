@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <link rel="stylesheet" href="{% static 'style.css'%}">
+    <style>
+        /* Loading screen style */
+        #loading {
+            display: none; /* Hidden by default */
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+            text-align: center;
+        }
+        #spinner {
+            margin-top: 20%;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: relative;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body {% if exception_occurred %}
+style="background-image: url('https://images.pexels.com/photos/3008509/pexels-photo-3008509.jpeg?auto=compress&cs=tinysrgb&w=1600');" 
+{% else %}
+style="background-image: url('{{ image_url }}');"
+{% endif %}>
+
+<div id="loading">
+    <div style="display: flex; justify-content: center; margin: 1rem; align-items: center;">
+        <div id="spinner" style="display: flex; flex-direction: row-reverse;"></div>
+    </div>
+    
+    <p  >Loading, please wait...</p>
+    
+    
+</div>
+    <div class="container" id="content"> 
+        <h1>Weather App</h1>
+        <form method="POST" id="cityForm">
+            {% csrf_token %}
+            <input type="text" name="city" placeholder="Enter the city">
+            <button type="submit" class="btn">sreach</button>
+        </form>
+    
+        <div class="weather">
+            <div class="left">
+                <h2 class="temp">{{ temp }} &#176; C</h2>
+                <h3 class="city">{{ city }}</h3>
+    
+            </div>
+            <div class="right">
+                <div class="icon">
+                    <p><img src="https://openweathermap.org/img/w/{{icon}}.png" width='100px'></p>
+                </div>
+                <div class="condition">
+                    <p>{{ description  }}</p>
+                    <p>{{ day  }}</p>
+                    
+                </div>
+            </div>
+            
+        </div>
+        <div class="message" style="padding: 20px; display: flex; justify-content: center;">
+            {% if messages %}
+            {% for message in messages %}
+            <p class="alert {{message.tags}}" style="font-weight: 600;">{{ message }}</p>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        document.getElementById('cityForm').onsubmit = function() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('content').style.display = 'none';
+
+            // Delay in milliseconds (e.g., 2000ms = 2 seconds)
+            setTimeout(function() {
+                // Hide the loading screen after 2 seconds
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            }, 5000); // Change 2000 to desired delay time
+        };
+    </script>
+    {% if exception_occurred %}
+    <script>
+        window.onload = function(){
+            alert("city information is not availabe to our API")
+        }
+    </script>
+
+    {% endif %}
+    
+</body>
+</html>
